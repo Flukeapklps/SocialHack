@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WalkSafe - Debug Page</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #3b82f6;
+        }
+        .card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .success {
+            color: #10b981;
+        }
+        .error {
+            color: #ef4444;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        #log {
+            background-color: #f3f4f6;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+        .test-result {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WalkSafe Debug Page</h1>
+    
+    <div class="card">
+        <h2>JavaScript Loading Test</h2>
+        <div id="js-test">Testing JavaScript...</div>
+        <button id="test-button">Test Button Click</button>
+    </div>
+    
+    <div class="card">
+        <h2>Static File Loading Test</h2>
+        <div id="css-test">Testing CSS loading...</div>
+        <div id="image-test">Testing image loading...</div>
+    </div>
+    
+    <div class="card">
+        <h2>Event Listener Test</h2>
+        <button id="event-test">Click to Test Event</button>
+    </div>
+    
+    <div class="card">
+        <h2>Console Log</h2>
+        <div id="log"></div>
+    </div>
+    
+    <script>
+        // Log function
+        function log(message, isError = false) {
+            const logElement = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'test-result';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            if (isError) {
+                entry.style.color = '#ef4444';
+            }
+            logElement.appendChild(entry);
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        // Test JavaScript loading
+        document.getElementById('js-test').innerHTML = '<span class="success">✓ JavaScript is working!</span>';
+        log('JavaScript test passed');
+        
+        // Test button click
+        document.getElementById('test-button').addEventListener('click', function() {
+            log('Button click test passed');
+            this.textContent = 'Button Works!';
+        });
+        
+        // Test CSS loading
+        fetch('/css/styles.css')
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('css-test').innerHTML = '<span class="success">✓ CSS file loaded successfully!</span>';
+                    log('CSS loading test passed');
+                } else {
+                    document.getElementById('css-test').innerHTML = '<span class="error">✗ Failed to load CSS file!</span>';
+                    log('CSS loading test failed', true);
+                }
+            })
+            .catch(error => {
+                document.getElementById('css-test').innerHTML = '<span class="error">✗ Error loading CSS file: ' + error.message + '</span>';
+                log('CSS loading test error: ' + error.message, true);
+            });
+        
+        // Test image loading
+        const img = new Image();
+        img.onload = function() {
+            document.getElementById('image-test').innerHTML = '<span class="success">✓ Image loaded successfully!</span>';
+            log('Image loading test passed');
+        };
+        img.onerror = function() {
+            document.getElementById('image-test').innerHTML = '<span class="error">✗ Failed to load image!</span>';
+            log('Image loading test failed', true);
+        };
+        img.src = '/images/favicon.png';
+        
+        // Test event listener
+        document.getElementById('event-test').addEventListener('click', function() {
+            log('Event listener test passed');
+            this.textContent = 'Event Listener Works!';
+        });
+        
+        // Check for Chart.js
+        if (typeof Chart !== 'undefined') {
+            log('Chart.js is loaded');
+        } else {
+            log('Chart.js is not loaded', true);
+        }
+        
+        // Check navigation to main app
+        log('Navigation test: <a href="/">Click to go to main app</a>');
+        document.getElementById('log').lastChild.innerHTML = document.getElementById('log').lastChild.textContent;
+    </script>
+</body>
+</html>
